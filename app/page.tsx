@@ -1,30 +1,36 @@
-import Image from "next/image";
+import Button from "./components/elements/Button";
+import Title from "./components/elements/Title";
+import SubTitle from "./components/elements/SubTitle";
+import PostCardFragment from "./components/fragments/PostCardFragment";
 
-export default function Home() {
+const baseUrl = "https://jsonplaceholder.typicode.com/posts";
+
+type PostType = {
+  userId: number;
+  id: number;
+  title: string;
+  body: string;
+};
+
+export default async function Home() {
+  const res = await fetch(baseUrl, {
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch posts");
+  }
+
+  const data: PostType[] = await res.json();
   return (
     <>
-      <main className="w-full h-screen p-4 bg-gray-800 text-white">
-        <h1 className="font-bold text-3xl">Welcome to My Blog</h1>
-        <button className="mt-4 p-2 bg-blue-600 rounded cursor-pointer">Post new article</button>
+      <main className="w-full h-screen overflow-scroll p-4 bg-gray-800 text-white">
+        <Title>Welcome to My Blog</Title>
+        <Button>Create New Post</Button>
         <section id="post">
-          <h2 className="mt-6 text-2xl">Latest Posts</h2>
-          <div className=" flex flex-col gap-5">
-            <article className="mt-4 p-4 bg-gray-700 rounded">
-              <h3 className="text-xl font-semibold">Post Title</h3>
-              <p className="mt-2">This is a brief description of the post content.</p>
-              <button className="mt-4 p-2 bg-blue-600 rounded cursor-pointer">Read More</button>
-            </article>
-            <article className="mt-4 p-4 bg-gray-700 rounded">
-              <h3 className="text-xl font-semibold">Post Title</h3>
-              <p className="mt-2">This is a brief description of the post content.</p>
-              <button className="mt-4 p-2 bg-blue-600 rounded cursor-pointer">Read More</button>
-            </article>
-            <article className="mt-4 p-4 bg-gray-700 rounded">
-              <h3 className="text-xl font-semibold">Post Title</h3>
-              <p className="mt-2">This is a brief description of the post content.</p>
-              <button className="mt-4 p-2 bg-blue-600 rounded cursor-pointer">Read More</button>
-            </article>
-          </div>
+          <SubTitle>Latest Posts</SubTitle>
+          {data.map((post) => {
+            return <PostCardFragment key={post.id} title={post.title} description={post.body} />;
+          })}
         </section>
       </main>
     </>
